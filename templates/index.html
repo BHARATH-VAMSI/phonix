@@ -1,0 +1,56 @@
+{% extends 'layout.html' %}
+
+{% block title %}Find Your Perfect Mobile{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">Find Your Perfect Smartphone</h1>
+        <p class="hero-subtitle">Compare top brands and models with detailed specifications to make the right choice</p>
+        
+        <div class="price-categories">
+            <a href="/price-category/under-10000" class="price-category">Under ₹10,000</a>
+            <a href="/price-category/under-15000" class="price-category">Under ₹15,000</a>
+            <a href="/price-category/under-20000" class="price-category">Under ₹20,000</a>
+            <a href="/price-category/under-25000" class="price-category">Under ₹25,000</a>
+            <a href="/price-category/under-30000" class="price-category">Under ₹30,000</a>
+            <a href="/price-category/under-40000" class="price-category">Under ₹40,000</a>
+            <a href="/price-category/above-40000" class="price-category">Above ₹40,000</a>
+        </div>
+    </div>
+</section>
+
+<section class="container">
+    <h2 class="section-title">Browse by Brand</h2>
+    <div class="brands-filter">
+        {% set brands = ['Samsung', 'Apple', 'Xiaomi', 'OnePlus', 'Google', 'Realme', 'Nothing', 'Motorola', 'Iqoo', 'Vivo'] %}
+        {% for brand in brands %}
+            <a href="/brand/{{ brand|lower }}" class="brand-filter">{{ brand }}</a>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="container">
+    <h2 class="section-title">Featured Smartphones</h2>
+    <div class="mobiles-grid">
+        {% for mobile in mobiles %}
+        <div class="mobile-card">
+            <div class="mobile-image">
+                <img src="{{ url_for('static', filename='images/' + mobile.image) }}" alt="{{ mobile.name }}">
+            </div>
+            <div class="mobile-info">
+                <div class="mobile-brand">{{ mobile.brand }}</div>
+                <h3 class="mobile-name">{{ mobile.name }}</h3>
+                <div class="mobile-price">₹{{ "{:,}".format(mobile.price) }}</div>
+                <div class="mobile-specs">
+                    <span class="spec-tag">{{ mobile.specs.processor }}</span>
+                    <span class="spec-tag">{{ mobile.specs.ram }}</span>
+                    <span class="spec-tag">{{ mobile.specs.camera.split(' + ')[0] }}</span>
+                </div>
+                <a href="/mobile/{{ mobile.id }}" class="view-button">View Details</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

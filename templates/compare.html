@@ -1,0 +1,174 @@
+{% extends 'layout.html' %}
+
+{% block title %}Compare Smartphones - Phonix{% endblock %}
+
+{% block content %}
+<section class="container" style="margin-top: 2rem;">
+    <h2 class="section-title">Compare Smartphones</h2>
+    
+    <div style="background-color: white; border-radius: 1rem; padding: 2rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);">
+        <form id="compareForm" style="margin-bottom: 2rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div>
+                    <label for="mobile1" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Phone 1</label>
+                    <select id="mobile1" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 0.5rem;">
+                        <option value="">Select a smartphone</option>
+                        {% for mobile in mobiles %}
+                            <option value="{{ mobile.id }}">{{ mobile.brand }} {{ mobile.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="mobile2" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Phone 2</label>
+                    <select id="mobile2" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 0.5rem;">
+                        <option value="">Select a smartphone</option>
+                        {% for mobile in mobiles %}
+                            <option value="{{ mobile.id }}">{{ mobile.brand }} {{ mobile.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="mobile3" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Phone 3 (Optional)</label>
+                    <select id="mobile3" style="width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 0.5rem;">
+                        <option value="">Select a smartphone</option>
+                        {% for mobile in mobiles %}
+                            <option value="{{ mobile.id }}">{{ mobile.brand }} {{ mobile.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <button type="button" id="compareButton" style="background-color: var(--primary-color); color: white; padding: 0.8rem 1.5rem; border: none; border-radius: 0.5rem; font-weight: 500; margin-top: 1.5rem; cursor: pointer;">
+                Compare Now
+            </button>
+        </form>
+        
+        <div id="compareResult" style="display: none;">
+            <h3 style="margin-bottom: 1.5rem;">Comparison Results</h3>
+            
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 1rem; text-align: left; background-color: #f8fafc; position: sticky; left: 0; z-index: 10;">Specification</th>
+                            <th id="phone1Header" style="padding: 1rem; text-align: center; background-color: #f8fafc;">Phone 1</th>
+                            <th id="phone2Header" style="padding: 1rem; text-align: center; background-color: #f8fafc;">Phone 2</th>
+                            <th id="phone3Header" style="padding: 1rem; text-align: center; background-color: #f8fafc;">Phone 3</th>
+                        </tr>
+                    </thead>
+                    <tbody id="compareTable">
+                        <!-- This will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const compareButton = document.getElementById('compareButton');
+    const compareResult = document.getElementById('compareResult');
+    const compareTable = document.getElementById('compareTable');
+    
+    compareButton.addEventListener('click', function() {
+        const mobile1Id = document.getElementById('mobile1').value;
+        const mobile2Id = document.getElementById('mobile2').value;
+        const mobile3Id = document.getElementById('mobile3').value;
+        
+        if (!mobile1Id || !mobile2Id) {
+            alert('Please select at least two smartphones to compare.');
+            return;
+        }
+        
+        // Get the selected mobiles data
+        const mobiles = {{ mobiles|tojson }};
+        const mobile1 = mobiles.find(m => m.id === mobile1Id);
+        const mobile2 = mobiles.find(m => m.id === mobile2Id);
+        const mobile3 = mobile3Id ? mobiles.find(m => m.id === mobile3Id) : null;
+        
+        // Update headers
+        document.getElementById('phone1Header').textContent = `${mobile1.brand} ${mobile1.name}`;
+        document.getElementById('phone2Header').textContent = `${mobile2.brand} ${mobile2.name}`;
+        document.getElementById('phone3Header').textContent = mobile3 
+            ? `${mobile3.brand} ${mobile3.name}` 
+            : 'Not Selected';
+        
+        // Clear previous results
+        compareTable.innerHTML = '';
+        
+        // Basic info rows
+        const basicRows = [
+            { name: 'Brand', prop: 'brand' },
+            { name: 'Price', prop: 'price', format: price => `₹${price.toLocaleString()}` }
+        ];
+        
+        // Specs rows (from the first mobile's specs keys)
+        const specsRows = Object.keys(mobile1.specs).map(key => ({
+            name: key.charAt(0).toUpperCase() + key.slice(1),
+            prop: `specs.${key}`
+        }));
+        
+        // All rows to display
+        const allRows = [...basicRows, ...specsRows];
+        
+        // Create table rows
+        allRows.forEach(row => {
+            const tr = document.createElement('tr');
+            
+            // Specification name column
+            const thName = document.createElement('th');
+            thName.style.padding = '0.8rem';
+            thName.style.textAlign = 'left';
+            thName.style.borderBottom = '1px solid #e2e8f0';
+            thName.style.position = 'sticky';
+            thName.style.left = '0';
+            thName.style.backgroundColor = 'white';
+            thName.textContent = row.name;
+            tr.appendChild(thName);
+            
+            // Get values using the property path
+            const getValue = (obj, path) => {
+                const props = path.split('.');
+                return props.reduce((o, p) => o && o[p] !== undefined ? o[p] : null, obj);
+            };
+            
+            // Format value if formatter exists
+            const formatValue = (value, row) => {
+                return row.format && value !== null ? row.format(value) : value;
+            };
+            
+            // Phone 1 value
+            const tdPhone1 = document.createElement('td');
+            tdPhone1.style.padding = '0.8rem';
+            tdPhone1.style.textAlign = 'center';
+            tdPhone1.style.borderBottom = '1px solid #e2e8f0';
+            tdPhone1.textContent = formatValue(getValue(mobile1, row.prop), row);
+            tr.appendChild(tdPhone1);
+            
+            // Phone 2 value
+            const tdPhone2 = document.createElement('td');
+            tdPhone2.style.padding = '0.8rem';
+            tdPhone2.style.textAlign = 'center';
+            tdPhone2.style.borderBottom = '1px solid #e2e8f0';
+            tdPhone2.textContent = formatValue(getValue(mobile2, row.prop), row);
+            tr.appendChild(tdPhone2);
+            
+            // Phone 3 value
+            const tdPhone3 = document.createElement('td');
+            tdPhone3.style.padding = '0.8rem';
+            tdPhone3.style.textAlign = 'center';
+            tdPhone3.style.borderBottom = '1px solid #e2e8f0';
+            tdPhone3.textContent = mobile3 
+                ? formatValue(getValue(mobile3, row.prop), row) 
+                : '-';
+            tr.appendChild(tdPhone3);
+            
+            compareTable.appendChild(tr);
+        });
+        
+        // Show comparison results
+        compareResult.style.display = 'block';
+    });
+});
+</script>
+{% endblock %}

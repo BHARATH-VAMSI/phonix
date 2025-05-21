@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ category }} - Phonix{% endblock %}
+
+{% block content %}
+<section class="container" style="margin-top: 2rem;">
+    <h2 class="section-title">{{ category }}</h2>
+    
+    {% if mobiles %}
+    <div class="mobiles-grid">
+        {% for mobile in mobiles %}
+        <div class="mobile-card">
+            <div class="mobile-image">
+                <img src="{{ url_for('static', filename='images/' + mobile.image) }}" alt="{{ mobile.name }}">
+            </div>
+            <div class="mobile-info">
+                <div class="mobile-brand">{{ mobile.brand }}</div>
+                <h3 class="mobile-name">{{ mobile.name }}</h3>
+                <div class="mobile-price">₹{{ "{:,}".format(mobile.price) }}</div>
+                <div class="mobile-specs">
+                    <span class="spec-tag">{{ mobile.specs.processor }}</span>
+                    <span class="spec-tag">{{ mobile.specs.ram }}</span>
+                    <span class="spec-tag">{{ mobile.specs.camera.split(' + ')[0] }}</span>
+                </div>
+                <a href="/mobile/{{ mobile.id }}" class="view-button">View Details</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem 1rem;">
+        <i class="fas fa-search" style="font-size: 3rem; color: var(--gray-color); margin-bottom: 1rem;"></i>
+        <h3>No smartphones found</h3>
+        <p>Try adjusting your search criteria or browse other categories</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

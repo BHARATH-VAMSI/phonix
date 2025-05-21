@@ -1,0 +1,73 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ mobile.name }} - Phonix{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem;">
+    <div class="mobile-detail">
+        <div class="detail-grid">
+            <div class="detail-image">
+                <img src="{{ url_for('static', filename='images/' + mobile.image) }}" alt="{{ mobile.name }}">
+            </div>
+            <div class="detail-info">
+                <h1>{{ mobile.name }}</h1>
+                <div class="detail-brand">{{ mobile.brand }}</div>
+                <div class="detail-price">₹{{ "{:,}".format(mobile.price) }}</div>
+                
+                <div class="key-features" style="margin-bottom: 2rem;">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                        <div style="background-color: #f8fafc; padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                            <i class="fas fa-microchip" style="font-size: 1.5rem; color: var(--primary-color); margin-bottom: 0.5rem;"></i>
+                            <div style="font-weight: 500;">{{ mobile.specs.processor }}</div>
+                            <div style="font-size: 0.9rem; color: var(--gray-color);">Processor</div>
+                        </div>
+                        <div style="background-color: #f8fafc; padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                            <i class="fas fa-memory" style="font-size: 1.5rem; color: var(--primary-color); margin-bottom: 0.5rem;"></i>
+                            <div style="font-weight: 500;">{{ mobile.specs.ram }}</div>
+                            <div style="font-size: 0.9rem; color: var(--gray-color);">RAM</div>
+                        </div>
+                        <div style="background-color: #f8fafc; padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                            <i class="fas fa-camera" style="font-size: 1.5rem; color: var(--primary-color); margin-bottom: 0.5rem;"></i>
+                            <div style="font-weight: 500;">{{ mobile.specs.camera }}</div>
+                            <div style="font-size: 0.9rem; color: var(--gray-color);">Camera</div>
+                        </div>
+                        <div style="background-color: #f8fafc; padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                            <i class="fas fa-battery-full" style="font-size: 1.5rem; color: var(--primary-color); margin-bottom: 0.5rem;"></i>
+                            <div style="font-weight: 500;">{{ mobile.specs.battery }}</div>
+                            <div style="font-size: 0.9rem; color: var(--gray-color);">Battery</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="detail-description">
+                    <h3 style="margin-bottom: 0.5rem;">Overview</h3>
+                    <p>{{ mobile.description }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 3rem;">
+            <h2 style="margin-bottom: 1.5rem;">Detailed Specifications</h2>
+            <table class="specs-table">
+                <tbody>
+                    {% for key, value in mobile.specs.items() %}
+                    <tr>
+                        <th>{{ key|title }}</th>
+                        <td>{{ value }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
+            <a href="/" style="background-color: #f1f5f9; color: var(--dark-color); padding: 0.8rem 1.5rem; border-radius: 0.5rem; font-weight: 500;">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+            <a href="/compare" style="background-color: var(--primary-color); color: white; padding: 0.8rem 1.5rem; border-radius: 0.5rem; font-weight: 500;">
+                <i class="fas fa-sync"></i> Compare with others
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
